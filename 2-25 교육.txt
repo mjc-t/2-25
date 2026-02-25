@@ -1,0 +1,99 @@
+Frame Looping(L2 뺑뺑이) <-> STP(L2 뺑뺑이 방지 프로토콜)
+1) Broadcast Storm
+2) Multiple Frame Copy
+3) Mac Address Table Instability
+
+STP 동작방식
+1) Root Switch 선출
+2) Root Port 선출
+3) Designated Port 선출
+
+[STP Port]
+1) DP: BPDU 송신
+2) RP: BPDU 수신
+3) NDP = Alternated Port: BPDU 수신, 데이터 차단
+
+Root Switch의 모든 포트는 DP이다.
+모든 Segment에는 반드시 DP가 존재한다.
+
+Root Switch 선출 기준
+= Bridge ID
+= Priority + Mac Address
+: 낮은 값이 우선
+: Priority(Default: 32768)
+
+show spanning-tree vlan 1
+
+장비
+[SW1] - 24 - [SW2]
+ 22 |                  | 22
+[SW4] - 24 - [SW3]
+int ran f0/19 - 24
+shutdown
+필요 포트만 no shut
+
+STP에서의 포트 상태 변화
+1) Blocking
+     Max Age = 20초
+2) Listening
+     Forwarding Delay = 15초
+3) Learning
+     Forwarding Delay = 15초
+4) Forwarding
+
+[RSTP]
+spanning-tree mode rapid-pvst
+원래대로 되돌리려면
+no spanning-tree mode rapid-pvst
+spanning-tree mode pvst
+
+Discarding -> Learning -> Forwarding
+
+Backup Port
+
+[MSTP]
+spanning-tree mode mst
+spanning-tree mst config
+     name 이름
+     revision 번호
+     instance 1 vlan #,#,#
+     instance 2 vlan #,#,#
+
+802.1 W      RSTP
+802.1 S       MSTP
+
+루트 스위치 선정(기본 32768)
+spanning-tree vlan 번호 priority 값
+spanning-tree vlan 번호 root primary
+: 24576
+spanning-tree vlan 번호 root secondary
+: 28672
+------------------------------------------
+spanning-tree mst # root {primary | secondary}
+spanning-tree mst # priority 값
+
+spanning-tree mode mstp
+spanning-tree mstp configuration
+  name CCNP
+  revision 1
+  instance 1 vlan 10,20,30,40,50
+  instance 2 vlan 60,70,80,90,100
+
+span mst 1 root pri
+span mst 2 root sec
+
+sh span mst config
+
+[설정 순서]
+1) 불필요 포트 셧다운
+2) 트렁킹 설정                         sh int trunk
+3) VTP 설정                             sh vtp status
+4) Vlan 생성                            
+5) Vlan 할당                            sh vlan brief
+6) STP 설정
+=====
+7) 인터페이스 설정
+8) 인접 ping
+9) 라우팅 설정
+10) 라우팅 테이블 확인
+11) 원격 ping
